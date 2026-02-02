@@ -1,0 +1,582 @@
+Reimagine & Rebuild Medigy as an AI-First Healthcare Marketplace
+Project Overview
+
+Rebuild https://www.medigy.com/
+ as a modern, AI-first digital healthcare marketplace and product intelligence platform.
+
+The new Medigy should function as:
+
+A G2/Capterra-style healthcare product directory
+
+A Product Hunt–style discovery platform
+
+An AI-powered healthcare intelligence assistant
+
+A community-driven evaluation ecosystem
+
+A lead-generation engine competing with top healthtech directories
+
+This is a complete reimagining, not a cosmetic redesign.
+
+🎯 Primary Goals
+
+Modernize visual design (clean, minimal, web-first)
+
+Dramatically improve product discovery
+
+Increase engagement & session time
+
+Enable structured product comparison
+
+Support vendors with dashboards & analytics
+
+Build AI-first discovery and recommendation engine
+
+Compete with major healthcare lead-gen agencies
+
+👥 Target Audience Segments (Separate Portals)
+
+Create dedicated experiences for:
+
+1️⃣ Healthcare Buyers
+
+Hospital decision-makers
+
+IT directors
+
+Innovation teams
+
+Procurement managers
+
+Needs:
+
+Compare products
+
+Read structured reviews
+
+Download reports
+
+Request demos
+
+Analytics insights
+
+2️⃣ Vendors / Healthtech Companies
+
+Product listing management
+
+Analytics dashboard
+
+Lead management
+
+Content publishing
+
+Sponsored placement
+
+3️⃣ Patients & Caregivers
+
+Practical AI-assisted health guidance
+
+Cancer & chronic disease help
+
+Rare disease navigation
+
+Educational resources
+
+Service discovery
+
+4️⃣ Young Health Optimizers
+
+Biomarker tracking tools
+
+Functional medicine platforms
+
+Longevity & wellness AI tools
+
+Preventive health products
+
+5️⃣ Healthcare Delivery Professionals
+
+AI tools for workflow automation
+
+Clinical AI tools
+
+Revenue cycle tools
+
+Practice optimization products
+
+🧠 Platform Positioning
+
+AI-First Discovery Platform
+
+Semantic search
+
+Smart filters
+
+AI-based product recommendations
+
+Natural language query support:
+
+“Show me AI radiology tools under $50k with HL7 integration”
+
+🎨 Design Requirements
+
+Style:
+
+Clean
+
+Minimal
+
+Modern SaaS aesthetic
+
+Soft shadows
+
+Strong typography hierarchy
+
+Card-based UI
+
+Generous whitespace
+
+Web-first (desktop optimized)
+
+Mobile responsive
+
+Reference styles:
+
+Linear
+
+Stripe
+
+Notion
+
+G2
+
+Product Hunt
+
+🏗 Core Platform Architecture
+
+Use a Hybrid Backend Approach:
+
+Node.js / Express or Next.js API routes
+
+SQLite (initial MVP DB)
+
+Modular schema design
+
+Easily migratable to Postgres later
+
+📦 Core Features
+1️⃣ Homepage
+
+Sections:
+
+Hero with AI search bar
+
+Trending products
+
+Featured categories
+
+Recently reviewed
+
+Upcoming events
+
+AI assistant CTA
+
+Community highlights
+
+Editorial highlights
+
+2️⃣ Product Directory
+
+Features:
+
+Category navigation
+
+Filter sidebar:
+
+Specialty
+
+Use case
+
+AI capability
+
+Integration type
+
+Price tier
+
+Deployment type
+
+Company size
+
+Rating
+
+Compliance (HIPAA, GDPR)
+
+Sorting:
+
+Most reviewed
+
+Highest rated
+
+Trending
+
+Recently added
+
+Product cards must include:
+
+Logo
+
+Tag badges
+
+AI badge (if applicable)
+
+Short summary
+
+Rating
+
+Review count
+
+Compare button
+
+Save button
+
+3️⃣ Product Detail Page
+
+Sections:
+
+Overview
+
+Key Features
+
+Screenshots
+
+Pricing (structured)
+
+Integrations
+
+Compliance
+
+Use cases
+
+Customer reviews (structured)
+
+Competitor comparison
+
+AI summary
+
+Related products
+
+Request demo form
+
+Include:
+
+Structured rating breakdown:
+
+Ease of use
+
+ROI
+
+Support
+
+Implementation
+
+Innovation score
+
+4️⃣ Compare Tool
+
+Side-by-side comparison:
+
+Features
+
+Pricing
+
+AI capability
+
+Integration support
+
+Ratings
+
+Reviews
+
+Pros/Cons
+
+Allow export to PDF.
+
+5️⃣ Reviews System
+
+Structured review form:
+
+Role of reviewer
+
+Organization size
+
+Use case
+
+Rating categories
+
+Pros
+
+Cons
+
+Implementation time
+
+ROI
+
+Include:
+
+Verified badge logic
+
+Moderation workflow
+
+6️⃣ AI Discovery Assistant
+
+Natural language search:
+
+Convert queries into filters
+
+Recommend products
+
+Summarize product differences
+
+Generate buyer reports
+
+Example:
+
+“Compare top 5 AI cardiology tools for mid-sized hospitals”
+
+7️⃣ News & Editorial
+
+Category pages
+
+Tag-based navigation
+
+News detail pages
+
+Share functionality
+
+Commenting
+
+Related content
+
+Sponsored tags
+
+8️⃣ Events & Podcasts
+
+Event listing page
+
+Filter by:
+
+Virtual / In-person
+
+Specialty
+
+Location
+
+Event detail page
+
+Add to calendar
+
+Registration CTA
+
+9️⃣ Community Layer
+
+Upvote products
+
+Follow vendors
+
+Save products
+
+Discussion threads
+
+Ask AI about products
+
+Bookmark articles
+
+🔟 Vendor Dashboard
+
+Authenticated area:
+
+Edit product listing
+
+Upload media
+
+Manage pricing
+
+View analytics:
+
+Views
+
+Saves
+
+Demo requests
+
+Conversion rate
+
+Lead inbox
+
+Sponsored upgrade options
+
+🗃 Database Schema (SQLite MVP)
+
+Design tables for:
+
+users
+
+roles
+
+companies
+
+products
+
+categories
+
+tags
+
+product_tags
+
+reviews
+
+review_ratings
+
+events
+
+news
+
+bookmarks
+
+comparisons
+
+demo_requests
+
+analytics_logs
+
+Use normalized relational schema.
+
+🔎 Discovery & Search
+
+Implement:
+
+Full-text search
+
+Multi-filter query system
+
+Tag indexing
+
+AI semantic ranking (stub logic for MVP)
+
+📊 Analytics Layer
+
+For buyers:
+
+Product comparison reports
+
+Saved products dashboard
+
+For vendors:
+
+Listing performance
+
+Lead conversion tracking
+
+🔐 Authentication
+
+Role-based auth
+
+Buyer
+
+Vendor
+
+Admin
+
+Moderator
+
+🧩 Tech Stack Recommendation
+
+Frontend:
+
+Next.js
+
+Tailwind CSS
+
+Component-based UI
+
+Dynamic routing
+
+Backend:
+
+API routes
+
+SQLite
+
+Prisma ORM
+
+Optional:
+
+OpenAI integration (stub)
+
+Chart.js for analytics
+
+🚀 Deliverables
+
+Generate:
+
+Full project structure
+
+Database schema
+
+Seed data
+
+Core pages
+
+Admin dashboard
+
+Vendor dashboard
+
+Auth system
+
+Sample AI assistant logic
+
+Search/filter logic
+
+Clean responsive UI
+
+🏁 MVP Scope
+
+This is not a small prototype.
+
+Build:
+
+Full vision architecture
+
+Production-grade folder structure
+
+Scalable design
+
+Data migration from old Medigy will be decided later.
+
+🧠 Strategic Differentiator
+
+Position Medigy as:
+
+“The AI-powered healthcare technology intelligence platform.”
+
+Must feel:
+
+Intelligent
+
+Trustworthy
+
+Insightful
+
+Premium
+
+Modern
+
+If needed, break the implementation into:
+
+Phase 1 – Core directory
+
+Phase 2 – AI & comparison
+
+Phase 3 – Community & analytics
+
+Phase 4 – Vendor monetization
