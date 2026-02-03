@@ -1,6 +1,6 @@
 import { 
-  products, categories, reviews, comparisons, comparisonProducts, topics, productTopics, stats,
-  type Product, type Category, type Review, type Comparison, type Topic, type Stat,
+  products, categories, reviews, comparisons, comparisonProducts, topics, productTopics, stats, articles, events,
+  type Product, type Category, type Review, type Comparison, type Topic, type Stat, type Article, type Event,
   type CreateProductRequest, type CreateReviewRequest
 } from "@shared/schema";
 import { db } from "./db";
@@ -8,7 +8,7 @@ import { eq, ilike, desc, and, inArray, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Products
-  getProducts(filters?: { search?: string; categoryId?: number; topicId?: number; isAiCapable?: boolean; sort?: string }): Promise<Product[]>;
+  getProducts(filters?: { search?: string; categoryId?: number; topicId?: number; isAiCapable?: boolean; sort?: string; limit?: number }): Promise<Product[]>;
   getProduct(id: number): Promise<(Product & { category: Category | null, topics: Topic[] }) | undefined>;
   createProduct(product: CreateProductRequest): Promise<Product>;
   
@@ -22,6 +22,10 @@ export interface IStorage {
 
   // Stats
   getStats(): Promise<Stat[]>;
+
+  // Articles & Events
+  getArticles(filters?: { type?: string; limit?: number }): Promise<Article[]>;
+  getEvents(filters?: { limit?: number }): Promise<Event[]>;
   
   // Reviews
   getReviewsByProduct(productId: number): Promise<Review[]>;
@@ -33,7 +37,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async getProducts(filters?: { search?: string; categoryId?: number; topicId?: number; isAiCapable?: boolean; sort?: string }): Promise<Product[]> {
+  async getProducts(filters?: { search?: string; categoryId?: number; topicId?: number; isAiCapable?: boolean; sort?: string; limit?: number }): Promise<Product[]> {
     let query = db.select().from(products);
     
     const conditions = [];
@@ -65,6 +69,10 @@ export class DatabaseStorage implements IStorage {
       query = query.orderBy(desc(products.reviewCount));
     } else {
       query = query.orderBy(desc(products.createdAt));
+    }
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit) as any;
     }
     
     return await query;
@@ -129,6 +137,25 @@ export class DatabaseStorage implements IStorage {
 
   async getStats(): Promise<Stat[]> {
     return await db.select().from(stats);
+  }
+
+  async getArticles(filters?: { type?: string; limit?: number }): Promise<Article[]> {
+    let query = db.select().from(articles).orderBy(desc(articles.publishedAt));
+    if (filters?.type) {
+      query = query.where(eq(articles.type, filters.type)) as any;
+    }
+    if (filters?.limit) {
+      query = query.limit(filters.limit) as any;
+    }
+    return await query;
+  }
+
+  async getEvents(filters?: { limit?: number }): Promise<Event[]> {
+    let query = db.select().from(events).orderBy(desc(events.startDate));
+    if (filters?.limit) {
+      query = query.limit(filters.limit) as any;
+    }
+    return await query;
   }
 
   async getReviewsByProduct(productId: number): Promise<Review[]> {

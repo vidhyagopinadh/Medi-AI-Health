@@ -109,6 +109,33 @@ export const stats = pgTable("stats", {
   label: text("label").notNull(),
 });
 
+// Daily Brief / News System
+export const articles = pgTable("articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  imageUrl: text("image_url"),
+  authorName: text("author_name"),
+  authorTitle: text("author_title"),
+  type: text("type").notNull(), // 'offering' | 'news' | 'event'
+  categoryId: integer("category_id").references(() => categories.id),
+  publishedAt: timestamp("published_at").defaultNow().notNull(),
+});
+
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  location: text("location"),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  isVirtual: boolean("is_virtual").default(false),
+  url: text("url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // === RELATIONS ===
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -165,6 +192,13 @@ export const comparisonProductsRelations = relations(comparisonProducts, ({ one 
   }),
 }));
 
+export const articlesRelations = relations(articles, ({ one }) => ({
+  category: one(categories, {
+    fields: [articles.categoryId],
+    references: [categories.id],
+  }),
+}));
+
 // === BASE SCHEMAS ===
 
 export const insertProductSchema = createInsertSchema(products).omit({ 
@@ -185,6 +219,8 @@ export const insertComparisonSchema = createInsertSchema(comparisons).omit({
 });
 
 export const insertTopicSchema = createInsertSchema(topics).omit({ id: true });
+export const insertArticleSchema = createInsertSchema(articles).omit({ id: true, publishedAt: true });
+export const insertEventSchema = createInsertSchema(events).omit({ id: true, createdAt: true });
 
 // === EXPLICIT API CONTRACT TYPES ===
 
@@ -194,6 +230,8 @@ export type Topic = typeof topics.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Comparison = typeof comparisons.$inferSelect;
 export type Stat = typeof stats.$inferSelect;
+export type Article = typeof articles.$inferSelect;
+export type Event = typeof events.$inferSelect;
 
 export type ProductWithCategory = Product & { category: Category | null };
 export type ReviewWithUser = Review & { user: typeof users.$inferSelect };

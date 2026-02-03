@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertProductSchema, insertReviewSchema, products, reviews, categories, comparisons, topics, stats } from './schema';
+import { insertProductSchema, insertReviewSchema, products, reviews, categories, comparisons, topics, stats, articles, events } from './schema';
 
 export { insertProductSchema, insertReviewSchema };
 
@@ -27,6 +27,7 @@ export const api = {
         topicId: z.string().optional(),
         isAiCapable: z.string().optional(),
         sort: z.enum(['rating', 'newest', 'reviews']).optional(),
+        limit: z.string().optional(),
       }).optional(),
       responses: {
         200: z.array(z.custom<typeof products.$inferSelect>()),
@@ -86,6 +87,31 @@ export const api = {
       path: '/api/stats',
       responses: {
         200: z.array(z.custom<typeof stats.$inferSelect>()),
+      },
+    },
+  },
+  articles: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/articles',
+      input: z.object({
+        type: z.enum(['offering', 'news', 'event']).optional(),
+        limit: z.string().optional(),
+      }).optional(),
+      responses: {
+        200: z.array(z.custom<typeof articles.$inferSelect>()),
+      },
+    },
+  },
+  events: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/events',
+      input: z.object({
+        limit: z.string().optional(),
+      }).optional(),
+      responses: {
+        200: z.array(z.custom<typeof events.$inferSelect>()),
       },
     },
   },

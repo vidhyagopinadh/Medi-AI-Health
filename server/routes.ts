@@ -21,6 +21,7 @@ export async function registerRoutes(
       topicId: req.query.topicId ? Number(req.query.topicId) : undefined,
       isAiCapable: req.query.isAiCapable === "true" ? true : (req.query.isAiCapable === "false" ? false : undefined),
       sort: req.query.sort as any,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
     };
     const products = await storage.getProducts(filters);
     res.json(products);
@@ -58,6 +59,23 @@ export async function registerRoutes(
   app.get(api.stats.list.path, async (req, res) => {
     const stats = await storage.getStats();
     res.json(stats);
+  });
+
+  app.get(api.articles.list.path, async (req, res) => {
+    const filters = {
+      type: req.query.type as string,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+    };
+    const articles = await storage.getArticles(filters);
+    res.json(articles);
+  });
+
+  app.get(api.events.list.path, async (req, res) => {
+    const filters = {
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+    };
+    const events = await storage.getEvents(filters);
+    res.json(events);
   });
 
   app.get(api.reviews.list.path, async (req, res) => {
@@ -115,7 +133,7 @@ export async function registerRoutes(
 async function seedDatabase() {
   try {
     const { db } = await import("./db");
-    const { categories, products, topics, productTopics, stats } = await import("@shared/schema");
+    const { categories, products, topics, productTopics, stats, articles, events } = await import("@shared/schema");
     
     const existingCategories = await storage.getCategories();
     if (existingCategories.length === 0) {
@@ -183,6 +201,43 @@ async function seedDatabase() {
         { key: "topics", value: 1300, label: "Healthcare Innovation Topics" },
         { key: "members", value: 50000, label: "Active Community Members" },
         { key: "research", value: 1200, label: "Published Case Studies & Research" },
+      ]);
+
+      await db.insert(articles).values([
+        {
+          title: "Investing in the Future - Ensuring Positive ROI in Healthcare Innovations",
+          slug: "roi-healthcare-innovations",
+          content: "Comprehensive guide on ROI in healthtech...",
+          excerpt: "Learn how to ensure positive ROI when implementing new healthcare technologies.",
+          authorName: "Dr. Jane Smith",
+          authorTitle: "Chief Innovation Officer",
+          type: "news",
+          categoryId: insertedCats[1].id
+        },
+        {
+          title: "New AI Radiology Standards Released",
+          slug: "ai-radiology-standards",
+          content: "The latest standards for AI in radiology have been published...",
+          excerpt: "New regulatory standards aim to improve AI safety in medical imaging.",
+          type: "news",
+          categoryId: insertedCats[4].id
+        }
+      ]);
+
+      await db.insert(events).values([
+        {
+          title: "Global HealthTech Summit 2026",
+          description: "The premier event for healthcare innovation.",
+          location: "San Francisco, CA",
+          startDate: new Date("2026-06-15"),
+          isVirtual: false
+        },
+        {
+          title: "AI in Medicine Webinar",
+          description: "Monthly webinar series on clinical AI.",
+          startDate: new Date("2026-03-10"),
+          isVirtual: true
+        }
       ]);
 
       console.log("Advanced seeding complete.");
