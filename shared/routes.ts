@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertProductSchema, insertReviewSchema, products, reviews, categories, comparisons } from './schema';
+import { insertProductSchema, insertReviewSchema, products, reviews, categories, comparisons, topics, stats } from './schema';
 
 export { insertProductSchema, insertReviewSchema };
 
@@ -24,7 +24,8 @@ export const api = {
       input: z.object({
         search: z.string().optional(),
         categoryId: z.string().optional(),
-        isAiCapable: z.string().optional(), // "true" or "false"
+        topicId: z.string().optional(),
+        isAiCapable: z.string().optional(),
         sort: z.enum(['rating', 'newest', 'reviews']).optional(),
       }).optional(),
       responses: {
@@ -35,7 +36,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/products/:id',
       responses: {
-        200: z.custom<typeof products.$inferSelect>(),
+        200: z.custom<typeof products.$inferSelect & { category: typeof categories.$inferSelect | null, topics: typeof topics.$inferSelect[] }>(),
         404: errorSchemas.notFound,
       },
     },
@@ -58,6 +59,36 @@ export const api = {
       },
     },
   },
+  topics: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/topics',
+      input: z.object({
+        categoryId: z.string().optional(),
+        featured: z.string().optional(),
+      }).optional(),
+      responses: {
+        200: z.array(z.custom<typeof topics.$inferSelect>()),
+      },
+    },
+    get: {
+      method: 'GET' as const,
+      path: '/api/topics/:slug',
+      responses: {
+        200: z.custom<typeof topics.$inferSelect & { products: typeof products.$inferSelect[] }>(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
+  stats: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/stats',
+      responses: {
+        200: z.array(z.custom<typeof stats.$inferSelect>()),
+      },
+    },
+  },
   reviews: {
     list: {
       method: 'GET' as const,
@@ -69,11 +100,11 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/products/:id/reviews',
-      input: insertReviewSchema.omit({ productId: true, userId: true }), // These are set by server/param
+      input: insertReviewSchema.omit({ productId: true, userId: true }),
       responses: {
         201: z.custom<typeof reviews.$inferSelect>(),
         400: errorSchemas.validation,
-        401: errorSchemas.internal, // Unauthorized
+        401: errorSchemas.internal,
       },
     },
   },

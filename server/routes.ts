@@ -10,20 +10,17 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Setup Auth first
   await setupAuth(app);
   registerAuthRoutes(app);
-  
-  // Setup Chat
   registerChatRoutes(app);
 
-  // === Products ===
   app.get(api.products.list.path, async (req, res) => {
     const filters = {
       search: req.query.search as string,
       categoryId: req.query.categoryId ? Number(req.query.categoryId) : undefined,
+      topicId: req.query.topicId ? Number(req.query.topicId) : undefined,
       isAiCapable: req.query.isAiCapable === "true" ? true : (req.query.isAiCapable === "false" ? false : undefined),
-      sort: req.query.sort as string,
+      sort: req.query.sort as any,
     };
     const products = await storage.getProducts(filters);
     res.json(products);
@@ -37,29 +34,32 @@ export async function registerRoutes(
     res.json(product);
   });
 
-  app.post(api.products.create.path, async (req, res) => {
-    try {
-      const input = api.products.create.input.parse(req.body);
-      const product = await storage.createProduct(input);
-      res.status(201).json(product);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
-        });
-      }
-      throw err;
-    }
-  });
-
-  // === Categories ===
   app.get(api.categories.list.path, async (req, res) => {
     const categories = await storage.getCategories();
     res.json(categories);
   });
 
-  // === Reviews ===
+  app.get(api.topics.list.path, async (req, res) => {
+    const filters = {
+      categoryId: req.query.categoryId ? Number(req.query.categoryId) : undefined,
+    };
+    const topics = await storage.getTopics(filters);
+    res.json(topics);
+  });
+
+  app.get(api.topics.get.path, async (req, res) => {
+    const topic = await storage.getTopicBySlug(req.params.slug);
+    if (!topic) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+    res.json(topic);
+  });
+
+  app.get(api.stats.list.path, async (req, res) => {
+    const stats = await storage.getStats();
+    res.json(stats);
+  });
+
   app.get(api.reviews.list.path, async (req, res) => {
     const reviews = await storage.getReviewsByProduct(Number(req.params.id));
     res.json(reviews);
@@ -71,8 +71,7 @@ export async function registerRoutes(
     }
     try {
       const input = api.reviews.create.input.parse(req.body);
-      // @ts-ignore
-      const userId = req.user!.claims.sub; // Replit Auth user ID
+      const userId = (req.user as any).claims.sub;
       const review = await storage.createReview({
         ...input,
         productId: Number(req.params.id),
@@ -90,12 +89,10 @@ export async function registerRoutes(
     }
   });
 
-  // === Comparisons ===
   app.post(api.comparisons.create.path, async (req, res) => {
     try {
       const { productIds, title } = req.body;
-      // @ts-ignore
-      const userId = req.isAuthenticated() ? req.user!.claims.sub : null;
+      const userId = req.isAuthenticated() ? (req.user as any).claims.sub : null;
       const comparison = await storage.createComparison(userId, productIds, title);
       res.status(201).json(comparison);
     } catch (err) {
@@ -111,80 +108,84 @@ export async function registerRoutes(
     res.json(comparison);
   });
 
-  // Seed data on startup
   seedDatabase();
-
   return httpServer;
 }
 
 async function seedDatabase() {
   try {
+    const { db } = await import("./db");
+    const { categories, products, topics, productTopics, stats } = await import("@shared/schema");
+    
     const existingCategories = await storage.getCategories();
     if (existingCategories.length === 0) {
+      console.log("Seeding advanced data...");
+      
       const cats = [
-        { name: "Radiology AI", slug: "radiology-ai", description: "AI tools for medical imaging analysis" },
-        { name: "Clinical Decision Support", slug: "cds", description: "Tools to assist clinical decision making" },
-        { name: "Revenue Cycle Management", slug: "rcm", description: "AI for billing and coding" },
-        { name: "Patient Engagement", slug: "patient-engagement", description: "Chatbots and patient portals" },
+        { name: "Interoperability", slug: "interoperability", description: "Seamless data exchange", icon: "Share2" },
+        { name: "AI & Cybersecurity", slug: "ai-cybersecurity", description: "Secure intelligent systems", icon: "ShieldCheck" },
+        { name: "Remote Patient Monitoring", slug: "rpm", description: "Continuous patient tracking", icon: "Activity" },
+        { name: "Patient Experience", slug: "patient-experience", description: "Better care journeys", icon: "Heart" },
+        { name: "Imaging Technology", slug: "imaging", description: "Advanced medical imaging", icon: "Camera" },
+        { name: "Compliance", slug: "compliance", description: "HIPAA & Regulatory tools", icon: "FileCheck" },
       ];
-      
-      // Insert categories
-      const { db } = await import("./db");
-      const { categories, products } = await import("@shared/schema");
-      
-      console.log("Seeding categories...");
-      const insertedCatsResult = await db.insert(categories).values(cats).returning();
-      console.log("Seeded categories:", insertedCatsResult.length);
-      
-      // Insert Products
-      console.log("Seeding products...");
-      await db.insert(products).values([
+      const insertedCats = await db.insert(categories).values(cats).returning();
+
+      const topicList = [
+        { name: "HL7 Integration", slug: "hl7", categoryId: insertedCats[0].id, offeringCount: 15 },
+        { name: "Threat Detection", slug: "threat-detection", categoryId: insertedCats[1].id, offeringCount: 8 },
+        { name: "Cardiac Monitoring", slug: "cardiac", categoryId: insertedCats[2].id, offeringCount: 12 },
+      ];
+      const insertedTopics = await db.insert(topics).values(topicList).returning();
+
+      const productList = [
         {
           name: "RadAI Pro",
           slug: "radai-pro",
+          vendorName: "RadTech Solutions",
           description: "Advanced AI for radiology reporting and analysis.",
           shortDescription: "Automated radiology reports.",
-          categoryId: insertedCatsResult[0].id,
+          categoryId: insertedCats[4].id,
           pricingTier: "Enterprise",
           integrationType: "HL7/FHIR",
           deploymentType: "Cloud",
           isAiCapable: true,
           aiCapabilities: ["Computer Vision", "NLP"],
-          rating: 4,
+          specifications: { technicalDetails: "Supports DICOM standards", licensing: "SaaS Subscription" },
+          rating: 45,
           reviewCount: 12
         },
         {
           name: "MediCode AI",
           slug: "medicode-ai",
+          vendorName: "SecureHealth",
           description: "Automated medical coding using deep learning.",
           shortDescription: "AI for medical coding.",
-          categoryId: insertedCatsResult[2].id,
+          categoryId: insertedCats[1].id,
           pricingTier: "Paid",
           integrationType: "API",
           deploymentType: "Hybrid",
           isAiCapable: true,
           aiCapabilities: ["NLP"],
-          rating: 5,
+          rating: 48,
           reviewCount: 8
-        },
-        {
-          name: "PatientConnect",
-          slug: "patient-connect",
-          description: "AI-driven patient engagement platform.",
-          shortDescription: "Engage patients automatically.",
-          categoryId: insertedCatsResult[3].id,
-          pricingTier: "Freemium",
-          integrationType: "Native",
-          deploymentType: "Cloud",
-          isAiCapable: true,
-          aiCapabilities: ["Chatbot"],
-          rating: 3,
-          reviewCount: 25
         }
+      ];
+      const insertedProducts = await db.insert(products).values(productList).returning();
+
+      await db.insert(productTopics).values([
+        { productId: insertedProducts[0].id, topicId: insertedTopics[0].id },
+        { productId: insertedProducts[1].id, topicId: insertedTopics[1].id },
       ]);
-      console.log("Seeding complete.");
-    } else {
-        console.log("Database already seeded.");
+
+      await db.insert(stats).values([
+        { key: "offerings", value: 4100, label: "Healthcare Offerings Catalogued" },
+        { key: "topics", value: 1300, label: "Healthcare Innovation Topics" },
+        { key: "members", value: 50000, label: "Active Community Members" },
+        { key: "research", value: 1200, label: "Published Case Studies & Research" },
+      ]);
+
+      console.log("Advanced seeding complete.");
     }
   } catch (error) {
     console.error("Error seeding database:", error);

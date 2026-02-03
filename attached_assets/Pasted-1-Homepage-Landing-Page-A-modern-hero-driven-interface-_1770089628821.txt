@@ -1,0 +1,115 @@
+1. Homepage / Landing Page
+A modern, hero-driven interface showcasing the platform's value:
+Hero Section
+•	Eye-catching headline: "Discover, Evaluate & Share Digital Health Innovations"
+•	Subheading: "The peer-reviewed intelligence platform for healthcare innovation decision-makers"
+•	Call-to-action buttons: "Explore Offerings" | "Join Community" | "Watch Intro Video"
+•	Background: Animated gradient with subtle healthcare/tech imagery
+•	Navigation bar: Sticky nav with logo, search, main menu, user profile dropdown
+Key Stats Section
+•	Display dynamic counters: 
+o	4,100+ Healthcare Offerings Catalogued
+o	1,300+ Healthcare Innovation Topics
+o	50,000+ Active Community Members (example)
+o	1,200+ Published Case Studies & Research
+Featured Content Section
+•	Featured article card with featured image
+•	Title: "Investing in the Future - Ensuring Positive ROI in Healthcare Innovations"
+•	Brief excerpt + read more link
+•	Author info and publication date
+Category Showcase Grid
+•	6 key topic cards with icons: 
+o	Interoperability (with count)
+o	AI & Cybersecurity
+o	Remote Patient Monitoring
+o	Patient Experience
+o	Imaging Technology
+o	Compliance
+•	Each card links to topic detail page
+•	Hover effects showing brief descriptions
+Latest Content Feed Section
+•	Tabbed interface: "Latest Offerings" | "Latest News" | "Upcoming Events"
+•	Grid cards (3 columns) showing recent items
+•	Card components include thumbnail, title, category tag, date, preview text
+•	"View All" links for each section
+Call-to-Action Sections
+•	"Why Medigy?" section explaining unique value
+•	Social proof: Testimonials from healthcare leaders
+•	"Ready to Get Started?" CTA section
+Footer
+•	Company info, links, social media
+•	Newsletter signup
+•	Cookie policy & legal links
+________________________________________
+2. Offerings/Products Catalog
+Advanced product discovery and comparison system:
+Offerings Browse Page
+•	Left Sidebar Filters: 
+o	Search bar with autocomplete
+o	Category filters (hierarchical)
+o	Topic filters (multi-select with count)
+o	Price range slider
+o	Deployment type (Cloud, On-Premise, Hybrid)
+o	Company filters
+o	Rating filters (4+ stars, 3+ stars, etc.)
+o	Advanced filters (expandable)
+•	Main Content Area: 
+o	View toggle: Grid | List | Comparison Mode
+o	Sort options: Relevance | Most Popular | Newest | Highest Rated
+o	Results count and active filters display
+o	Cards showing: 
+	Product image (responsive)
+	Product name + vendor
+	Category tags
+	Star rating with review count
+	Brief description
+	Key capabilities (badges)
+	CTA: "View Details" | "Compare"
+Offering Detail Page
+•	Hero section with product image/carousel
+•	Product name, vendor, category path
+•	Rating display with breakdown chart
+•	Tabs: 
+o	Overview: Full description, key features, use cases
+o	Specifications: Technical details, requirements, deployment options
+o	Reviews: Peer reviews with helpful votes, comments
+o	Case Studies: Real-world implementations
+o	Pricing: Price range, licensing models
+o	Resources: Documentation, videos, whitepapers
+o	Similar Products: Recommendations engine
+•	Right Sidebar: 
+o	Quick info box: Vendor details, website link, contact CTA
+o	Save to favorites button
+o	Share options (social, email)
+o	Request demo CTA
+o	Related topics
+Comparison Mode
+•	Side-by-side comparison of up to 4 products
+•	Customizable comparison matrix
+•	Feature-by-feature breakdown
+•	Downloadable comparison PDF
+________________________________________
+3. Topics / Healthcare Categories
+Structured knowledge organization:
+Topics Browse Page
+•	Hierarchical category tree navigation
+•	Topic cards showing: 
+o	Category icon
+o	Topic name
+o	Count of related offerings
+o	Brief description
+o	Related subtopics
+•	Search and filter capabilities
+•	"Popular Topics" section
+Topic Detail Page
+•	Topic overview with description
+•	Sections: 
+o	"About This Topic": Comprehensive guide
+o	"Featured Offerings": Top 6 related products
+o	"Related News": Latest articles on topic
+o	"Recent Case Studies": Implementations
+o	"Upcoming Events": Related events
+o	"Community Discussions": Forum threads
+o	"Experts in This Topic": Featured practitioners
+•	Trending products in this category
+•	Research resources and links

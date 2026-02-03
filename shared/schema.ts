@@ -2,6 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, primaryKey }
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { sql } from "drizzle-orm";
 
 // Import Auth and Chat models
 export * from "./models/auth";
@@ -16,6 +17,17 @@ export const categories = pgTable("categories", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
+  icon: text("icon"), // Lucide icon name
+});
+
+export const topics = pgTable("topics", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  categoryId: integer("category_id").references(() => categories.id),
+  icon: text("icon"),
+  offeringCount: integer("offering_count").default(0),
 });
 
 export const products = pgTable("products", {
@@ -26,6 +38,7 @@ export const products = pgTable("products", {
   shortDescription: text("short_description"),
   logoUrl: text("logo_url"),
   websiteUrl: text("website_url"),
+  vendorName: text("vendor_name"),
   
   // Categorization & Metadata
   categoryId: integer("category_id").references(() => categories.id),
@@ -33,16 +46,30 @@ export const products = pgTable("products", {
   integrationType: text("integration_type"), // API, Native, HL7, FHIR
   deploymentType: text("deployment_type"), // Cloud, On-premise, Hybrid
   
+  // Detailed Specs (JSON for flexibility in MVP)
+  specifications: jsonb("specifications").$type<{
+    technicalDetails?: string;
+    requirements?: string;
+    licensing?: string;
+  }>(),
+
   // AI Specific
   isAiCapable: boolean("is_ai_capable").default(false),
   aiCapabilities: jsonb("ai_capabilities").$type<string[]>(), // e.g., ["NLP", "Computer Vision"]
   
   // Stats
-  rating: integer("rating").default(0), // scaled 0-50 or 0-100 to avoid floats if desired, or just use number in app logic
+  rating: integer("rating").default(0), // scaled 0-50
   reviewCount: integer("review_count").default(0),
   
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const productTopics = pgTable("product_topics", {
+  productId: integer("product_id").notNull().references(() => products.id),
+  topicId: integer("topic_id").notNull().references(() => topics.id),
+}, (t) => [
+  primaryKey({ columns: [t.productId, t.topicId] })
+]);
 
 export const reviews = pgTable("reviews", {
   id: serial("id").primaryKey(),
@@ -63,7 +90,7 @@ export const reviews = pgTable("reviews", {
 
 export const comparisons = pgTable("comparisons", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").references(() => users.id), // Can be anonymous? If so, nullable
+  userId: text("user_id").references(() => users.id),
   title: text("title"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -75,6 +102,13 @@ export const comparisonProducts = pgTable("comparison_products", {
   primaryKey({ columns: [t.comparisonId, t.productId] })
 ]);
 
+export const stats = pgTable("stats", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: integer("value").notNull(),
+  label: text("label").notNull(),
+});
+
 // === RELATIONS ===
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -83,6 +117,26 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     references: [categories.id],
   }),
   reviews: many(reviews),
+  topics: many(productTopics),
+}));
+
+export const topicsRelations = relations(topics, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [topics.categoryId],
+    references: [categories.id],
+  }),
+  products: many(productTopics),
+}));
+
+export const productTopicsRelations = relations(productTopics, ({ one }) => ({
+  product: one(products, {
+    fields: [productTopics.productId],
+    references: [products.id],
+  }),
+  topic: one(topics, {
+    fields: [productTopics.topicId],
+    references: [topics.id],
+  }),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
@@ -130,12 +184,16 @@ export const insertComparisonSchema = createInsertSchema(comparisons).omit({
   createdAt: true 
 });
 
+export const insertTopicSchema = createInsertSchema(topics).omit({ id: true });
+
 // === EXPLICIT API CONTRACT TYPES ===
 
 export type Product = typeof products.$inferSelect;
 export type Category = typeof categories.$inferSelect;
+export type Topic = typeof topics.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Comparison = typeof comparisons.$inferSelect;
+export type Stat = typeof stats.$inferSelect;
 
 export type ProductWithCategory = Product & { category: Category | null };
 export type ReviewWithUser = Review & { user: typeof users.$inferSelect };
@@ -143,12 +201,11 @@ export type ReviewWithUser = Review & { user: typeof users.$inferSelect };
 export type CreateProductRequest = z.infer<typeof insertProductSchema>;
 export type CreateReviewRequest = z.infer<typeof insertReviewSchema>;
 
-// For detailed product view
 export type ProductDetailResponse = ProductWithCategory & {
   reviews?: ReviewWithUser[];
+  topics?: Topic[];
 };
 
-// For comparison view
 export type ComparisonResponse = Comparison & {
   products: Product[];
 };
